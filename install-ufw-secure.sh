@@ -7,6 +7,15 @@ apt update -y
 echo "[+] Installing UFW"
 apt install -y ufw
 
+echo "[+] Disabling IPv6 at kernel level"
+cat <<EOF >/etc/sysctl.d/99-disable-ipv6.conf
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+net.ipv6.conf.lo.disable_ipv6 = 1
+EOF
+
+sysctl --system
+
 echo "[+] Setting default firewall policy"
 ufw default deny incoming
 ufw default allow outgoing
@@ -33,8 +42,6 @@ sed -i 's/^IPV6=.*/IPV6=no/' /etc/ufw/ufw.conf
 
 echo "[+] Enabling UFW"
 ufw --force enable
-
-echo "[+] Reloading UFW"
 ufw reload
 
 echo "[+] Final firewall status:"
